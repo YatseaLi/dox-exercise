@@ -1,0 +1,694 @@
+{
+	"info": {
+		"_postman_id": "496f3506-0848-48e7-9871-a7cf1493ddb3",
+		"name": "DOX Exercise",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "000-Get Standard token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6e764172-a6d6-43e6-ac11-6db65991813c",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set(\"token\", jsonData.access_token); "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-cache"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{CLIENT_ID}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{CLIENT_SECRET}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "response_type",
+							"value": "token",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{AUTHENTICATION_URL}}/oauth/token",
+					"host": [
+						"{{AUTHENTICATION_URL}}"
+					],
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "001-Get capabilities of service (aka. extractable features)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/capabilities",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"capabilities"
+					]
+				},
+				"description": "Retrieve the JSON consisting of lists of extractable fields, enrichment and document types that the service is capable of processing."
+			},
+			"response": []
+		},
+		{
+			"name": "100-Create/modify a client",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"value\": [\n\t\t{\n\t\t\t\"clientId\": \"{{client}}\",\n\t\t\t\"clientName\": \"Client Postman Test\"\n\t\t}\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/clients",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"clients"
+					]
+				},
+				"description": "This endpoint lets one create client(s) for whom documents can later be submitted for processing. The data for each client must contain two fields - clientId and clientName for each client. The field clientId should not be longer than 100 characters.\n\nThe list of clients should be sent as a JSON payload in the request.\n\n##### Examples for payload parameter:\n\nSingle client: `{\"value\":[{\"clientId\":\"c_00\",\"clientName\":\"client 00\"}]}`\n\nMultiple clients: `{\"value\":[{\"clientId\":\"c_00\",\"clientName\":\"client 00\"}, {\"clientId\":\"c_01\",\"clientName\":\"client 01\"}]}`\n\n##### Field values:\n* The spaces at the beginning and the end of the value strings are removed."
+			},
+			"response": []
+		},
+		{
+			"name": "101-Get clients",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/clients?offset=0&limit=10",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"clients"
+					],
+					"query": [
+						{
+							"key": "offset",
+							"value": "0",
+							"description": "Index of the first client to be retrieved."
+						},
+						{
+							"key": "limit",
+							"value": "10",
+							"description": "Number of clients to retrieve (maximum allowed value: 50000)."
+						}
+					]
+				},
+				"description": "This endpoint returns all the client details as a list in the `payload` key in the returned JSON."
+			},
+			"response": []
+		},
+		{
+			"name": "102-Delete a client",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"value\": [\n\t\t\"{{client}}\"\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/clients",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"clients"
+					]
+				},
+				"description": "The endpoint lets one delete one or more client(s). It returns an error if any of the specified client ids do not exist."
+			},
+			"response": []
+		},
+		{
+			"name": "200-Submit a document processing job",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ef6e68b9-bb26-4916-85a2-4064bf4ac8d5",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set(\"document_uuid\", jsonData.id); "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"description": "The document you wish to submit for processing",
+							"type": "file",
+							"src": "/Users/i033357/Downloads/Customer Invoice.pdf"
+						},
+						{
+							"key": "options",
+							"value": "{\n    \"extraction\": {\n        \"headerFields\": [\n            \"documentNumber\",\n            \"taxId\",\n            \"purchaseOrder\",\n            \"shippingAmount\",\n            \"subTotalAmount\",\n            \"senderAddress\",\n            \"senderName\",\n            \"totalAmount\",\n            \"currencyCode\",\n            \"receivingEmployee\",\n            \"documentDate\",\n            \"taxAmount\",\n            \"taxRate\",\n            \"receiverName\",\n            \"receiverAddress\"\n        ],\n        \"lineItemFields\": [\n            \"description\",\n            \"netAmount\",\n            \"quantity\",\n            \"unitPrice\",\n            \"materialNumber\"\n        ]\n    },\n    \"clientId\": \"{{client}}\",\n    \"documentType\": \"invoice\",\n    \"enrichment\": {\n        \"sender\": {\n            \"top\": 5,\n            \"type\": \"businessEntity\",\n            \"subtype\": \"supplier\"\n        },\n        \"employee\": {\n            \"type\": \"employee\"\n        }\n    }\n}",
+							"description": "Options for processing the document.\n\nheaderFields: List of header fields to be extracted from the submitted invoice.\n\nlineItemFields: List of line item fields to be extracted from the submitted invoice.\n\nclientId: The ID of the client. Example: ‘c_00’\n\ndocumentType: The type of document being uploaded. Choices: ['invoice’, ‘paymentAdvice’]\n\nenrichment: Activate matching and define number of results and types.",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/document/jobs",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"document",
+						"jobs"
+					]
+				},
+				"description": "This asynchronous endpoint lets the client submit a **pdf** document for processing. If the document gets submitted successfully, a UUID (or simply ID) is returned. This **UUID** can be used at other endpoints like `[GET]/document/jobs/{uuid}` and `[DELETE]/document/jobs/{uuid}`."
+			},
+			"response": []
+		},
+		{
+			"name": "210-Get processed document",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/document/jobs/{{document_uuid}}?clientId={{client}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"document",
+						"jobs",
+						"{{document_uuid}}"
+					],
+					"query": [
+						{
+							"key": "clientId",
+							"value": "{{client}}",
+							"description": "The ID of the client used while submitting the document."
+						}
+					]
+				},
+				"description": "Receives the ID of a document submitted previously and returns the corresponding processing result, or an error if no result for the given id was found."
+			},
+			"response": []
+		},
+		{
+			"name": "220-Get all processed documents",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/document/jobs",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"document",
+						"jobs"
+					]
+				},
+				"description": "Returns a list of documents as JSON"
+			},
+			"response": []
+		},
+		{
+			"name": "230-Delete document by id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"value\": [\n\t\t\"{{document_uuid}}\"\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/document/jobs",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"document",
+						"jobs"
+					]
+				},
+				"description": "Delete a list of documents or all documents. The payload is an optional array of IDs that should be deleted.\nIf the parameter is not present, all documents will be deleted."
+			},
+			"response": []
+		},
+		{
+			"name": "230-Delete all documents",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/document/jobs",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"document",
+						"jobs"
+					]
+				},
+				"description": "Delete a list of documents or all documents. The payload is an optional array of IDs that should be deleted. If the parameter is not present, all documents will be deleted."
+			},
+			"response": []
+		},
+		{
+			"name": "300-Create/modify data records",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ef6e68b9-bb26-4916-85a2-4064bf4ac8d5",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.environment.set(\"data_uuid\", jsonData.id); "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"value\": [\n        {\n            \"id\": \"E0001\",\n            \"email\": \"jane.doe@company.com\",\n            \"firstName\": \"Jane\",\n            \"lastName\": \"Doe\"\n        },\n        {\n            \"id\": \"E0002\",\n            \"email\": \"john.bob.doe@company.com\",\n            \"firstName\": \"John\",\n            \"middleName\": \"Bob\",\n            \"lastName\": \"Doe\"\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/data/jobs?type=employee&clientId={{client}}&subtype=",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"data",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "employee",
+							"description": "Type of data which is uploaded (employee, businessEntity)"
+						},
+						{
+							"key": "clientId",
+							"value": "{{client}}",
+							"description": "The ID of the client."
+						},
+						{
+							"key": "subtype",
+							"value": "",
+							"description": "The subtype of data either supplier, customer, companyCode for business entity."
+						}
+					]
+				},
+				"description": "This endpoint allows the asynchronous creation and update of data for a specified client ID.\n\nThe data can be submitted via the payload parameter that should contain a valid JSON string which can be a list of multiple records of the same data type.\n\nThe result of this endpoint will be the ID of the data persistence job responsible for uploading/updating\nthe data. This ID has to be used in the GET data endpoint to retrieve the current status of the data\npersistence job.\n\nThe two data types that can be submitted are:\n\n1. **businessEntity** - Has subtype of supplier, customer, companyCode or unspecified.\n2. **employee** - Has no specified subtype.\n\nIn the payload JSON string, a mandatory field of id must be provided for each data record for\nbusinessEntity and employee.\n\n##### Examples for payload parameter:\n**businessEntity**: `{\"value\": [{\"id\":\"BE0001\", \"name\":\"\",\"accountNumber\":\"\", \"address1\":\"\", \"address2\": \"\", \"city\":\"\", \"countryCode\":\"\", \"postalCode\":\"\",\"state\":\"\", \"email\":\"\", \"phone\":\"\", \"bankAccount\":\"\", \"taxId\":\"\"}]}`\n\n**employee**: `{\"value\": [{\"id\":\"E0001\", \"email\":\"\", \"firstName\":\"\", \"middleName\": \"\", \"lastName\":\"\"}]}`"
+			},
+			"response": []
+		},
+		{
+			"name": "310-Get status of data persistence job",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/data/jobs/{{data_uuid}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"data",
+						"jobs",
+						"{{data_uuid}}"
+					]
+				},
+				"description": "This endpoint will return a JSON with the status and processed time of the data persistence job specified by the given UUID."
+			},
+			"response": []
+		},
+		{
+			"name": "320-Get data entities",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/data?type=employee&clientId={{client}}&offset=0&limit=10&id=&subtype=",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"data"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "employee",
+							"description": "Type of data which is uploaded (employee, businessEntity)"
+						},
+						{
+							"key": "clientId",
+							"value": "{{client}}",
+							"description": "The ID of the client."
+						},
+						{
+							"key": "offset",
+							"value": "0",
+							"description": "Offset of the first item to be returned."
+						},
+						{
+							"key": "limit",
+							"value": "10",
+							"description": "Items per page. Defines a maximum."
+						},
+						{
+							"key": "id",
+							"value": "",
+							"description": "The data ID of a single entry"
+						},
+						{
+							"key": "subtype",
+							"value": "",
+							"description": "The subtype of data either supplier, customer, companyCode for business entity."
+						}
+					]
+				},
+				"description": "This endpoint returns a JSON response with the data entities.\n\nIf a single entity matches the query, the response will contain a entity in JSON, otherwise the response will be a list."
+			},
+			"response": []
+		},
+		{
+			"name": "330-Delete data entities",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"value\": [\n        \"E0001\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/{{BASE}}/data?type=employee&clientId={{client}}&subtype=",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"{{BASE}}",
+						"data"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "employee",
+							"description": "Type of data which is uploaded (employee, businessEntity)"
+						},
+						{
+							"key": "clientId",
+							"value": "{{client}}",
+							"description": "The ID of the client."
+						},
+						{
+							"key": "subtype",
+							"value": "",
+							"description": "The subtype of data either supplier, customer, companyCode for business entity."
+						}
+					]
+				},
+				"description": "This endpoint allows the deletion of existing data for the specified fields.\n\nIt accepts an array of IDs that should be deleted in the payload. If no array is given, all entries will be deleted."
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
