@@ -1,7 +1,7 @@
 # dox-exercise
 
 ## Prerequisites:
-* Follow the tutarial to SCP trial account and Create a DOX instance https://developers.sap.com/group.cp-aibus-extract-document-service.html
+* Follow the tutarial to SCP trial account and Create a DOX instance https://developers.sap.com/mission.cp-aibus-extract-document-service.html
 * [Install Postman client](https://www.postman.com/downloads/) 
 
 ## Step 1: Import the postman collection of DOX Env and DOX Exercise to postman
